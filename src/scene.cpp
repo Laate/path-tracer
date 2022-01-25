@@ -41,9 +41,9 @@ namespace scenes
     auto indirect_illumination() -> Scene
     {
         Triangle emissive_triangle = Triangle(Vec3(-5, -2.5, 0), Vec3(0, 3.5, 0), Vec3(5, -2.5, 0));
-        Triangle red_triangle = Triangle(Vec3(-5, -5.5, -2), Vec3(0, 0.5, -2), Vec3(5, -5.5, -2));
-        Triangle green_triangle = Triangle(Vec3(-8, -1.5, -2), Vec3(-3, 4.5, -2), Vec3(2, -1.5, -2));
-        Triangle blue_triangle = Triangle(Vec3(-2, -1.5, -2), Vec3(3, 4.5, -2), Vec3(8, -1.5, -2));
+        Triangle red_triangle = Triangle(Vec3(-5, -5.5, -1), Vec3(0, 0.5, -1), Vec3(5, -5.5, -1));
+        Triangle green_triangle = Triangle(Vec3(-8, -1.5, -1), Vec3(-3, 4.5, -1), Vec3(2, -1.5, -1));
+        Triangle blue_triangle = Triangle(Vec3(-2, -1.5, -1), Vec3(3, 4.5, -1), Vec3(8, -1.5, -1));
         return Scene({emissive_triangle,
                       red_triangle, green_triangle, blue_triangle},
                      {white_emissive_material, red_material, green_material, blue_material},

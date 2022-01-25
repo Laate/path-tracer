@@ -17,7 +17,7 @@ struct Scene
     // std::vector<Vec3> normals;
     // Todo: uv coordinates
     // std::vector<Vec2> uvs;
-    Camera camera = Camera(Vec3(0, 0, 15), Vec3(0, 1, 0), Vec3(0, 0, -1), 75);
+    Camera camera = Camera(Vec3(0, 0, 15), Vec3(0, 1, 0), Vec3(0, 0, -1), 1.3F);
 
     Scene() = default;
     Scene(std::vector<Triangle> triangles, std::vector<Material> materials, std::vector<int> material_indices)

@@ -41,13 +41,13 @@ inline auto microfacet_shadowing(float roughness, const Vec3 &normal, const Vec3
 
 inline auto brdf(const Material &material, const Vec3 &normal, const Vec3 &incoming, const Vec3 &outgoing) -> Vec3
 {
-    assert(dot(normal, outgoing) > 0.0F);
-    assert(dot(normal, incoming) > 0.0F);
+    // assert(dot(normal, outgoing) > 0.0F);
+    // assert(dot(normal, incoming) > 0.0F);
     const auto dielectric_specular = Vec3(0.04F, 0.04F, 0.04F);
     const auto diffuse_color = lerp(material.base_color * (1.0F - dielectric_specular), Vec3(0.0F, 0.0F, 0.0F), material.metallic);
     const auto F0 = lerp(dielectric_specular, material.base_color, material.metallic);
-    const auto up_normal = dot(normal, incoming) > 0.0F ? normal : -normal;
     const auto halfway = normalize(incoming + outgoing);
+    const auto up_normal = dot(normal, incoming) > 0.0F ? normal : -normal;
 
     const auto F = fresnel(F0, outgoing, halfway);
     const auto G = microfacet_distribution(material.roughness, up_normal, halfway);

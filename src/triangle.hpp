@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ostream>
+
 #include "math/vec3.hpp"
 
 struct Triangle
@@ -11,3 +13,5 @@ struct Triangle
     Vec3 edge1;
     Vec3 edge2;
 };
+
+auto operator<<(std::ostream &os, const Triangle &t) -> std::ostream &;
