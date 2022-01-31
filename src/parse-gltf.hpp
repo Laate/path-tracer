@@ -6,5 +6,5 @@
 
 namespace gltf
 {
-    auto load_gltf(const std::string &filename, Scene &scene) -> bool;
+    auto load_gltf(const std::string &file_path, Scene &scene) -> bool;
 } // namespace gltf

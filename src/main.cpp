@@ -1,4 +1,3 @@
-#include <array>
 #include <chrono>
 #include <cstdint>
 #include <iostream>
@@ -10,34 +9,40 @@
 
 #include "camera.hpp"
 #include "math/utility.hpp"
+#include "parse-args.hpp"
+#include "parse-gltf.hpp"
 #include "scene.hpp"
 #include "trace.hpp"
 
-#include "parse-gltf.hpp"
-
 auto main(int argc, char **argv) -> int
 {
-    std::vector<std::string> arguments(argv + 1, argv + argc);
-
-    constexpr int samples_per_pixel = 64;
-    constexpr float sample_weight = 1.0F / samples_per_pixel;
-    constexpr int max_bounces = 10;
+    std::vector<std::string> input_arguments(argv + 1, argv + argc);
+    auto options = Args{};
+    if (!parse_args(input_arguments, options))
+    {
+        exit(1);
+    }
+    omp_set_num_threads(options.thread_count);
+    int samples_per_pixel = options.samples;
+    float sample_weight = 1.0F / samples_per_pixel;
+    int max_bounces = options.max_bounces;
+    int width = options.width;
+    int height = options.height;
     constexpr int color_channels = 3;
-    constexpr int width = 720;
-    constexpr int height = 576;
-    constexpr float aspect_ratio = static_cast<float>(width) / height;
+    float aspect_ratio = static_cast<float>(width) / height;
 
     std::vector<uint8_t> pixels(height * width * color_channels);
 
     auto scene = Scene();
-    if (!gltf::load_gltf("../models/cornell-box.gltf", scene))
+    if (!gltf::load_gltf(options.input_path, scene))
     {
-        std::cerr << "Loading scene failed." << std::endl;
+        std::cerr << "Loading scene from " << options.input_path << " failed." << std::endl;
         exit(1);
     }
 
+    // Progress bar
     std::valarray<unsigned> progress_counter(omp_get_max_threads());
-    auto print_progress = [&progress_counter]()
+    auto print_progress = [&progress_counter, height]()
     {
         int percent = 100.0f * progress_counter.sum() / height;
         std::cout << "\033[2K\r"
@@ -83,7 +88,7 @@ auto main(int argc, char **argv) -> int
               << std::endl;
 
     if (stbi_write_png("output.png", width, height, color_channels, pixels.data(), width * color_channels))
-        std::cout << "Image saved" << std::endl;
+        std::cout << "Image saved to " << options.output_path << std::endl;
     else
-        std::cerr << "Failed to save image" << std::endl;
+        std::cerr << "Failed to save image to " << options.output_path << std::endl;
 }

@@ -53,7 +53,7 @@ namespace
 
 // See the glTF documentation for explanation of the format.
 // https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/figures/gltfOverview-2.0.0b.png
-auto gltf::load_gltf(const std::string &filename, Scene &scene) -> bool
+auto gltf::load_gltf(const std::string &file_path, Scene &scene) -> bool
 {
     auto start_time = std::chrono::system_clock::now();
     auto res_to_str = [](cgltf_result res) -> std::string
@@ -86,15 +86,15 @@ auto gltf::load_gltf(const std::string &filename, Scene &scene) -> bool
     memset(&options, 0, sizeof(options));
     // This needs to be freed using the cgltf_free function if cgltf_parse_file is successful.
     cgltf_data *data_ptr = nullptr;
-    cgltf_result parse_result = cgltf_parse_file(&options, filename.c_str(), &data_ptr);
+    cgltf_result parse_result = cgltf_parse_file(&options, file_path.c_str(), &data_ptr);
 
     if (parse_result != cgltf_result_success)
     {
-        std::cerr << "Error parsing " << filename << ": " << res_to_str(parse_result) << std::endl;
+        std::cerr << "Error parsing " << file_path << ": " << res_to_str(parse_result) << std::endl;
         return false;
     }
 
-    cgltf_result load_result = cgltf_load_buffers(&options, data_ptr, filename.c_str());
+    cgltf_result load_result = cgltf_load_buffers(&options, data_ptr, file_path.c_str());
 
     if (load_result != cgltf_result_success)
     {
@@ -235,15 +235,13 @@ auto gltf::load_gltf(const std::string &filename, Scene &scene) -> bool
     auto end_time = std::chrono::system_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
 
-    std::cout << "Loaded scene in " << elapsed << " µs\n- "
+    std::cout << "Loaded scene from " << file_path << " in " << elapsed << " µs\n- "
               << scene.materials.size() << " materials\n- "
               << scene.triangles.size() << " triangles\n"
               << scene.camera << "\nyfov = " << yfov << std::endl;
 
-    for (auto &mat : scene.materials)
-    {
-        std::cout << mat << std::endl;
-    }
+    // for (auto &mat : scene.materials)
+    //     std::cout << mat << std::endl;
 
     cgltf_free(data_ptr);
     return true;
