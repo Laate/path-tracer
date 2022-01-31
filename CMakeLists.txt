@@ -10,6 +10,8 @@ file(GLOB SOURCES
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
+set (CMAKE_CXX_FLAGS "-fopenmp")
+
 add_compile_options(
     -Wall -Werror -Wextra -Wpedantic -Wno-unused-function -Wno-unused-variable -Ofast -fdiagnostics-color=always -march=native -Wno-missing-field-initializers
 )
