@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -11,7 +12,9 @@
 #define CGLTF_IMPLEMENTATION
 #include "../libs/cgltf.h"
 
+#include "light.hpp"
 #include "material.hpp"
+#include "math/constants.hpp"
 #include "parse-gltf.hpp"
 #include "scene.hpp"
 #include "triangle.hpp"
@@ -84,9 +87,10 @@ auto gltf::load_gltf(const std::string &file_path, Scene &scene) -> bool
     };
     cgltf_options options = {};
     memset(&options, 0, sizeof(options));
-    // This needs to be freed using the cgltf_free function if cgltf_parse_file is successful.
+
     cgltf_data *data_ptr = nullptr;
     cgltf_result parse_result = cgltf_parse_file(&options, file_path.c_str(), &data_ptr);
+    auto data_guard = std::unique_ptr<cgltf_data, void (*)(cgltf_data *)>(data_ptr, &cgltf_free);
 
     if (parse_result != cgltf_result_success)
     {
@@ -99,13 +103,12 @@ auto gltf::load_gltf(const std::string &file_path, Scene &scene) -> bool
     if (load_result != cgltf_result_success)
     {
         std::cerr << "Error loading buffers: " << res_to_str(load_result) << std::endl;
-        cgltf_free(data_ptr);
         return false;
     }
 
     cgltf_data &data = *data_ptr;
 
-    // Add materials to scene;
+    // Add materials to the scene;
     scene.materials.reserve(data.materials_count);
 
     if (data.materials_count == 0)
@@ -168,9 +171,13 @@ auto gltf::load_gltf(const std::string &file_path, Scene &scene) -> bool
                 if (attribute.type != cgltf_attribute_type_position || accessor.type != cgltf_type_vec3)
                     continue;
 
-                static_assert(sizeof(Vec3) == sizeof(float) * 3, "Expecting Vec3 to contain three floats");
-                primitive.points.resize(accessor.count);
-                cgltf_accessor_unpack_floats(&accessor, reinterpret_cast<float *>(primitive.points.data()), 3 * accessor.count);
+                size_t num_floats = accessor.count * cgltf_num_components(accessor.type);
+                std::vector<float> temp(num_floats);
+                cgltf_accessor_unpack_floats(&accessor, temp.data(), num_floats);
+
+                primitive.points.reserve(accessor.count);
+                for (size_t idx = 0; idx < accessor.count; ++idx)
+                    primitive.points.emplace_back(temp[idx * 3], temp[idx * 3 + 1], temp[idx * 3 + 2]);
 
                 primitive.indices.reserve(gltf_primitive.indices->count);
                 for (size_t idx = 0; idx < gltf_primitive.indices->count; ++idx)
@@ -191,7 +198,6 @@ auto gltf::load_gltf(const std::string &file_path, Scene &scene) -> bool
             std::cerr << "Unsupported camera type" << std::endl;
     }
 
-    // To make sure we only read data from one camera.
     bool found_camera = false;
 
     // A scene can contain the same mesh multiple times with different transforms and materials applied to it.
@@ -228,6 +234,41 @@ auto gltf::load_gltf(const std::string &file_path, Scene &scene) -> bool
                 }
             }
         }
+        if (node.light != nullptr)
+        {
+            cgltf_light &gltf_light = *node.light;
+            const Vec3 color = {gltf_light.color[0], gltf_light.color[1], gltf_light.color[2]};
+            const Vec3 radiance = color * gltf_light.intensity;
+            const Vec3 position = {0, 0, 0};
+            const Vec3 direction = {0, 0, -1};
+            switch (gltf_light.type)
+            {
+            case cgltf_light_type_directional:
+            {
+                DirectionalLight dir_light = {radiance, rotate(to_world, direction)};
+                scene.lights.emplace_back(dir_light);
+                break;
+            }
+            case cgltf_light_type_point:
+            {
+                PointLight point_light = {radiance, transform(to_world, position)};
+                scene.lights.emplace_back(point_light);
+                break;
+            }
+            case cgltf_light_type_spot:
+            {
+                SpotLight spot_light = {radiance,
+                                        transform(to_world, position),
+                                        rotate(to_world, direction),
+                                        gltf_light.spot_inner_cone_angle,
+                                        gltf_light.spot_outer_cone_angle};
+                scene.lights.emplace_back(spot_light);
+                break;
+            }
+            default:
+                std::cerr << "Invalid light " << gltf_light.name << std::endl;
+            }
+        }
     }
     assert(scene.triangles.size() == scene.material_indices.size());
     assert(!scene.materials.empty());
@@ -236,13 +277,15 @@ auto gltf::load_gltf(const std::string &file_path, Scene &scene) -> bool
     auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
 
     std::cout << "Loaded scene from " << file_path << " in " << elapsed << " µs\n- "
+              << scene.lights.size() << " lights\n- "
               << scene.materials.size() << " materials\n- "
-              << scene.triangles.size() << " triangles\n"
-              << scene.camera << "\nyfov = " << yfov << std::endl;
+              << scene.triangles.size() << " triangles" << std::endl;
+
+    // for (auto &light : scene.lights)
+    //     std::cout << light << std::endl;
 
     // for (auto &mat : scene.materials)
     //     std::cout << mat << std::endl;
 
-    cgltf_free(data_ptr);
     return true;
 }

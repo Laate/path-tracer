@@ -16,4 +16,4 @@ struct Args
     int thread_count = omp_get_max_threads();
 };
 
-auto parse_args(const std::vector<std::string> &arguments, Args &args) -> bool;
+auto parse_args(const std::vector<std::string> &arguments, Args &options) -> bool;

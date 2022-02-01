@@ -23,13 +23,13 @@ auto main(int argc, char **argv) -> int
         exit(1);
     }
     omp_set_num_threads(options.thread_count);
-    int samples_per_pixel = options.samples;
-    float sample_weight = 1.0F / samples_per_pixel;
-    int max_bounces = options.max_bounces;
-    int width = options.width;
-    int height = options.height;
+    auto samples_per_pixel = options.samples;
+    auto sample_weight = 1.0F / samples_per_pixel;
+    auto max_bounces = options.max_bounces;
+    auto width = options.width;
+    auto height = options.height;
+    auto aspect_ratio = static_cast<float>(width) / height;
     constexpr int color_channels = 3;
-    float aspect_ratio = static_cast<float>(width) / height;
 
     std::vector<uint8_t> pixels(height * width * color_channels);
 
@@ -41,7 +41,7 @@ auto main(int argc, char **argv) -> int
     }
 
     // Progress bar
-    std::valarray<unsigned> progress_counter(omp_get_max_threads());
+    std::valarray<int> progress_counter(omp_get_max_threads());
     auto print_progress = [&progress_counter, height]()
     {
         int percent = 100.0f * progress_counter.sum() / height;
@@ -83,6 +83,7 @@ auto main(int argc, char **argv) -> int
     std::cout << "\nRendering complete\n"
               << "Width: " << width << ", Height: " << height << "\n"
               << samples_per_pixel << " samples per pixel\n"
+              << options.thread_count << " threads\n"
               << "Time: " << static_cast<float>(elapsed) / 1e6 << " s\n"
               << "Mean: " << static_cast<float>(elapsed) / (height * width * samples_per_pixel) << " µs per iteration"
               << std::endl;

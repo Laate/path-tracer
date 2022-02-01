@@ -46,4 +46,5 @@ constexpr auto operator==(const Vec3 &a, const Vec3 &b) noexcept -> bool { retur
 constexpr auto operator!=(const Vec3 &a, const Vec3 &b) noexcept -> bool { return a.x != b.x || a.y != b.y || a.z != b.z; }
 constexpr auto normalize(const Vec3 &a) noexcept -> Vec3 { return a / length(a); }
 constexpr auto lerp(const Vec3 &a, const Vec3 &b, float u) noexcept -> Vec3 { return a * (1.0F - u) + b * u; }
+constexpr auto max(const Vec3 &a) noexcept -> float { return std::max(a.x, std::max(a.y, a.z)); }
 auto operator<<(std::ostream &os, const Vec3 &a) -> std::ostream &;
