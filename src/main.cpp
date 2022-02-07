@@ -4,6 +4,7 @@
 #include <omp.h>
 #include <valarray>
 
+#include "../libs/pcg/pcg_random.hpp"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../libs/stb_image_write.h"
 
@@ -51,6 +52,14 @@ auto main(int argc, char **argv) -> int
                   << "%, " << omp_get_max_threads() << " threads" << std::flush;
     };
 
+    // The rng relies on modifying its internal state to generate numbers,
+    // meaning each thread needs its own rng.
+    std::vector<pcg32> rngs;
+    for (int i = 0; i < omp_get_max_threads(); ++i)
+    {
+        rngs.push_back(pcg32(i));
+    }
+
     auto start_time = std::chrono::system_clock::now();
 #pragma omp parallel for schedule(static, 1)
     for (int y = 0; y < height; ++y)
@@ -64,7 +73,7 @@ auto main(int argc, char **argv) -> int
             for (int i = 0; i < samples_per_pixel; ++i)
             {
                 Ray ray = scene.camera.get_ray(img_plane_x, img_plane_y);
-                pixel_color += trace(scene, ray, max_bounces) * sample_weight;
+                pixel_color += trace(scene, ray, max_bounces, rngs[omp_get_thread_num()]) * sample_weight;
             }
             for (int c = 0; c < 3; ++c)
             {

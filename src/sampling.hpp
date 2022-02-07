@@ -4,6 +4,8 @@
 #include <cmath>
 #include <random>
 
+#include "../libs/pcg/pcg_random.hpp"
+
 #include "material.hpp"
 #include "math/constants.hpp"
 #include "math/vec3.hpp"
@@ -23,13 +25,12 @@ inline auto orthonormal_basis(const Vec3 &normal, Vec3 &basis_x, Vec3 &basis_y) 
 
 // Todo: importance sampling
 
-inline auto uniform_sample_hemisphere(const Vec3 &normal) -> Vec3
+inline auto uniform_sample_hemisphere(const Vec3 &normal, pcg32 &rng) -> Vec3
 {
-    // Todo: better rng
-    // Generate random direction in a hemisphere oriented around the z-axis.
-    constexpr auto inv_max = 1.0F / static_cast<float>(RAND_MAX);
-    auto r1 = rand() * inv_max;
-    auto r2 = rand() * inv_max;
+    // Generate a random direction in a hemisphere oriented around the z-axis.
+    std::uniform_real_distribution<float> zero_to_one(0.0F, 1.0F);
+    auto r1 = zero_to_one(rng);
+    auto r2 = zero_to_one(rng);
     auto z = r1;
     auto r = std::sqrt(1.0F - z * z);
     auto phi = 2 * math::PI * r2;

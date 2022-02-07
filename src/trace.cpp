@@ -1,5 +1,7 @@
 #include <cassert>
 
+#include "../libs/pcg/pcg_random.hpp"
+
 #include "trace.hpp"
 #include "brdf.hpp"
 #include "light.hpp"
@@ -9,7 +11,7 @@
 #include "sampling.hpp"
 #include "scene.hpp"
 
-auto trace(const Scene &scene, const Ray &ray_from_camera, int max_bounces) -> Vec3
+auto trace(const Scene &scene, const Ray &ray_from_camera, int max_bounces, pcg32 &rng) -> Vec3
 {
     Vec3 radiance = {0, 0, 0};
     Vec3 weight = {1, 1, 1};
@@ -26,7 +28,7 @@ auto trace(const Scene &scene, const Ray &ray_from_camera, int max_bounces) -> V
         // below the surface due to floating-point inaccuracies.
         const Vec3 hit_point = hit.point + hit.normal * math::EPSILON * 5;
         const Vec3 outgoing = -ray.direction;
-        const Vec3 incoming = uniform_sample_hemisphere(hit.normal); // Todo: Mirrors will not work with uniform sampling.
+        const Vec3 incoming = uniform_sample_hemisphere(hit.normal, rng); // Todo: Mirrors will not work with uniform sampling.
 
         // Sample every light.
         for (const auto &light_variant : scene.lights)

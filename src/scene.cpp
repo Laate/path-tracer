@@ -1,6 +1,8 @@
 #include <random>
 #include <vector>
 
+#include "../libs/pcg/pcg_random.hpp"
+
 #include "light.hpp"
 #include "material.hpp"
 #include "math/vec3.hpp"
@@ -23,10 +25,11 @@ namespace scenes
 
     auto random_triangles(int N) -> Scene
     {
-        auto random_vec = []() -> Vec3
+        auto rng = pcg32(1729);
+        std::uniform_real_distribution<float> zero_to_one(0.0F, 1.0F);
+        auto random_vec = [&]() -> Vec3
         {
-            constexpr float inv_max = 1.0F / static_cast<float>(RAND_MAX);
-            return {rand() * inv_max, rand() * inv_max, rand() * inv_max};
+            return {zero_to_one(rng), zero_to_one(rng), zero_to_one(rng)};
         };
         std::vector<Triangle> random_triangles;
         random_triangles.reserve(N);
