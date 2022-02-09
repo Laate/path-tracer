@@ -18,7 +18,7 @@
                         0.5621123909950256,
                         1
                     ],
-                    "intensity" : 50,
+                    "intensity" : 5,
                     "type" : "point",
                     "name" : "Point"
                 },
@@ -28,7 +28,7 @@
                         0.8004400134086609,
                         0.7051151394844055
                     ],
-                    "intensity" : 40,
+                    "intensity" : 4,
                     "type" : "point",
                     "name" : "Point.001"
                 },
@@ -38,7 +38,7 @@
                         1,
                         1
                     ],
-                    "intensity" : 20,
+                    "intensity" : 2,
                     "type" : "point",
                     "name" : "Point.002"
                 }

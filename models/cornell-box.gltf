@@ -228,9 +228,9 @@
         {
             "doubleSided" : true,
             "emissiveFactor" : [
-                1,
-                1,
-                1
+                10,
+                10,
+                10
             ],
             "name" : "LightBall",
             "pbrMetallicRoughness" : {}

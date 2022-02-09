@@ -23,7 +23,7 @@ public:
         x_axis_ = normalize(cross(z_axis_, y_axis_));
     }
 
-    inline auto get_ray(float x, float y) const -> Ray
+    [[nodiscard]] inline auto get_ray(float x, float y) const -> Ray
     {
         return {origin_, normalize(x * x_axis_ + y * y_axis_ + img_plane_distance_ * z_axis_)};
     }

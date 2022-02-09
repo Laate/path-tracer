@@ -1,15 +1,16 @@
+#include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <iostream>
 #include <omp.h>
 #include <valarray>
 
-#include "../libs/pcg/pcg_random.hpp"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../libs/stb_image_write.h"
 
 #include "camera.hpp"
-#include "math/utility.hpp"
+#include "math/rng.hpp"
 #include "parse-args.hpp"
 #include "parse-gltf.hpp"
 #include "scene.hpp"
@@ -54,10 +55,10 @@ auto main(int argc, char **argv) -> int
 
     // The rng relies on modifying its internal state to generate numbers,
     // meaning each thread needs its own rng.
-    std::vector<pcg32> rngs;
+    std::vector<RNG> rngs;
     for (int i = 0; i < omp_get_max_threads(); ++i)
     {
-        rngs.push_back(pcg32(i));
+        rngs.emplace_back(RNG(i));
     }
 
     auto start_time = std::chrono::system_clock::now();
@@ -77,7 +78,8 @@ auto main(int argc, char **argv) -> int
             }
             for (int c = 0; c < 3; ++c)
             {
-                pixels[y * width * color_channels + x * color_channels + c] += math::clamp(pixel_color[c], 0.0F, 1.0F) * 255;
+                // pow(color, 1/2.2) is gamma correction
+                pixels[y * width * color_channels + x * color_channels + c] += std::pow(std::clamp(pixel_color[c], 0.0F, 1.0F), 1.0F / 2.2F) * 255;
             }
         }
         ++progress_counter[omp_get_thread_num()];
@@ -97,7 +99,7 @@ auto main(int argc, char **argv) -> int
               << "Mean: " << static_cast<float>(elapsed) / (height * width * samples_per_pixel) << " µs per iteration"
               << std::endl;
 
-    if (stbi_write_png("output.png", width, height, color_channels, pixels.data(), width * color_channels))
+    if (stbi_write_png(options.output_path.data(), width, height, color_channels, pixels.data(), width * color_channels))
         std::cout << "Image saved to " << options.output_path << std::endl;
     else
         std::cerr << "Failed to save image to " << options.output_path << std::endl;

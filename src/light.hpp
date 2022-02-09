@@ -28,33 +28,43 @@ struct SpotLight
     Vec3 radiance;
     Vec3 position;
     Vec3 direction;
-    float angle_scale;
-    float angle_offset;
+    float inner_cone_cos;
+    float outer_cone_cos;
 
     SpotLight(Vec3 rad, Vec3 pos, Vec3 dir, float inner_cone_angle, float outer_cone_angle)
         : radiance(rad),
           position(pos),
           direction(dir),
-          angle_scale(1.0f / std::max(0.001F, cosf(inner_cone_angle) - cosf(outer_cone_angle)))
-    {
-        angle_offset = -cosf(outer_cone_angle) * angle_scale;
-    };
+          inner_cone_cos(cosf(inner_cone_angle)),
+          outer_cone_cos(cosf(outer_cone_angle)){};
 };
 
-inline auto intensity(const DirectionalLight &light, const Vec3 & /*point*/) -> Vec3
+inline auto range_attenuation(const Vec3 &light_position, const Vec3 &point) -> float
+{
+    return 1.0F / length_squared(light_position - point);
+}
+
+inline auto intensity(const DirectionalLight &light) -> Vec3
 {
     return light.radiance;
 }
 
 inline auto intensity(const PointLight &light, const Vec3 &point) -> Vec3
 {
-    return light.radiance * (1.0F / length_squared(light.position - point));
+    return light.radiance * range_attenuation(light.position, point);
 }
 
 inline auto intensity(const SpotLight &light, const Vec3 &point) -> Vec3
 {
-    float cd = -dot(light.direction, normalize(light.position - point));
-    return light.radiance * math::clamp(cd * light.angle_scale + light.angle_offset, 0.0F, 1.0F);
+    float actual_cos = dot(light.direction, normalize(point - light.position));
+    float spot_attenuation = 0.0F;
+    if (actual_cos > light.outer_cone_cos)
+    {
+        spot_attenuation = (actual_cos < light.inner_cone_cos) ? smooth_step(light.outer_cone_cos, light.inner_cone_cos, actual_cos)
+                                                               : 1.0F;
+    }
+
+    return light.radiance * range_attenuation(light.position, point) * spot_attenuation;
 }
 
 auto operator<<(std::ostream &os, const DirectionalLight &light) -> std::ostream &;

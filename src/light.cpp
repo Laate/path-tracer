@@ -22,6 +22,6 @@ auto operator<<(std::ostream &os, const SpotLight &light) -> std::ostream &
               << "\n\tradiance = " << light.radiance
               << "\n\tposition = " << light.position
               << "\n\tdirection = " << light.direction
-              << "\n\tangle_scale = " << light.angle_scale
-              << "\n\tangle_offset = " << light.angle_offset << "}";
+              << "\n\tinner_cone_cos = " << light.inner_cone_cos
+              << "\n\touter_cone_cos = " << light.outer_cone_cos << "}";
 }

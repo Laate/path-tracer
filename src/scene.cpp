@@ -56,11 +56,11 @@ namespace scenes
                 {0, 1, 2, 3}};
     }
 
-    auto spot_light_test() -> Scene
+    auto spot_light() -> Scene
     {
         auto scene = Scene();
 
-        SpotLight spot_light = {{10, 10, 10}, {11, -1, 2}, {-1, 0, -1}, math::PI / 6.0F, math::PI / 3.0F};
+        SpotLight spot_light = {{20, 20, 5}, {11, -1, 2}, {-1, 0, -1}, 0.0F, math::PI / 4.0F};
 
         Triangle red_triangle = {Vec3(-5, -5.5, 0), Vec3(0, 0.5, 0), Vec3(5, -5.5, 0)};
         Triangle green_triangle = {Vec3(-8, -1.5, 0), Vec3(-3, 4.5, 0), Vec3(2, -1.5, 0)};
@@ -74,4 +74,24 @@ namespace scenes
 
         return scene;
     }
+
+    auto point_light() -> Scene
+    {
+        auto scene = Scene();
+
+        PointLight point_light = {{20, 20, 5}, {11, -1, 5}};
+
+        Triangle red_triangle = {Vec3(-5, -5.5, 0), Vec3(0, 0.5, 0), Vec3(5, -5.5, 0)};
+        Triangle green_triangle = {Vec3(-8, -1.5, 0), Vec3(-3, 4.5, 0), Vec3(2, -1.5, 0)};
+        Triangle blue_triangle = {Vec3(-2, -1.5, 0), Vec3(3, 4.5, 0), Vec3(8, -1.5, 0)};
+        Triangle backgroud = {Vec3(-50, -25, -1), Vec3(0, 35, -1), Vec3(50, -25, -1)};
+
+        scene.triangles = {red_triangle, green_triangle, blue_triangle, backgroud};
+        scene.materials = {red_material, green_material, blue_material, grey_material};
+        scene.material_indices = {0, 1, 2, 3};
+        scene.lights.emplace_back(point_light);
+
+        return scene;
+    }
+
 } // namespace scenes

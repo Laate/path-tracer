@@ -87,5 +87,6 @@ namespace scenes
     auto a_triangle() -> Scene;
     auto random_triangles(int N) -> Scene;
     auto indirect_illumination() -> Scene;
-    auto spot_light_test() -> Scene;
+    auto spot_light() -> Scene;
+    auto point_light() -> Scene;
 } // namespace scenes

@@ -28,23 +28,19 @@
                         1,
                         0.4597283601760864
                     ],
-                    "intensity" : 50,
+                    "intensity" : 5,
                     "type" : "point",
                     "name" : "Point"
                 },
                 {
                     "color" : [
                         1,
-                        1,
-                        1
+                        0.1,
+                        0.1
                     ],
-                    "intensity" : 200,
-                    "spot" : {
-                        "innerConeAngle" : 0.22252948426127794,
-                        "outerConeAngle" : 0.2617993950843811
-                    },
-                    "type" : "spot",
-                    "name" : "Spot"
+                    "intensity" : 5,
+                    "type" : "point",
+                    "name" : "highPoint"
                 },
                 {
                     "color" : [
@@ -52,13 +48,13 @@
                         1,
                         1
                     ],
-                    "intensity" : 294.5,
+                    "intensity" : 20,
                     "spot" : {
                         "innerConeAngle" : 0.7417649306496106,
                         "outerConeAngle" : 0.8726646304130554
                     },
                     "type" : "spot",
-                    "name" : "Spot.001"
+                    "name" : "lowSpot"
                 }
             ]
         }
@@ -733,7 +729,7 @@
         },
         {
             "doubleSided" : true,
-            "name" : "Material.001",
+            "name" : "RedSphere",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
                     0.8000000715255737,

@@ -2,7 +2,6 @@
 
 #include "math/vec3.hpp"
 
-// Values should be in the range [0, 1]
 struct Material
 {
     float roughness{};

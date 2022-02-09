@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../libs/pcg/pcg_random.hpp"
-
-#include "scene.hpp"
+#include "math/rng.hpp"
 #include "ray.hpp"
+#include "scene.hpp"
 
-auto trace(const Scene &scene, const Ray &ray, int max_bounces, pcg32 &rng) -> Vec3;
+auto trace(const Scene &scene, const Ray &ray, int max_bounces, RNG &rng) -> Vec3;
