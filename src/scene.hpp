@@ -23,7 +23,6 @@ struct Scene
     std::vector<Triangle> triangles;
     std::vector<Material> materials;
     std::vector<int> material_indices;
-    //std::vector<Light *> lights;
     std::vector<std::variant<DirectionalLight, PointLight, SpotLight>> lights;
     // Todo: normals
     // std::vector<Vec3> normals;

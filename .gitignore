@@ -4,6 +4,8 @@ pathtracer
 scratchpad
 build
 
+!example-renders/*
+
 # Created by https://www.toptal.com/developers/gitignore/api/cmake
 ### CMake ###
 CMakeLists.txt.user
